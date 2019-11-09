@@ -15,7 +15,13 @@ class NickCaveLyricsParser():
         self.album_names = []
         for album in albums:
             album_data = album.find_all('h3')
-            self.album_names.append(album_data[0].contents[0])
+            album_title = album_data[0].contents[0]
+            print('>>>', album_title)
+            self.album_names.append(album_title)
+            album_songs = album.find_all('a')
+            for song_data in album_songs:
+                song_title = song_data.contents[0]
+                print(song_title)
 
         return albums
 
