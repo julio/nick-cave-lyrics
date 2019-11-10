@@ -9,8 +9,7 @@ class NickCaveLyricsScraper():
         self.dom = dom_loader.dom()
 
     def create_albums_and_songs(self):
-        for album_dom_element in self.dom:
-            Album.create_from_dom(album_dom_element)
+        Album.create_from_dom(self.dom)
 
 if __name__ == '__main__':
     parser = NickCaveLyricsScraper()
