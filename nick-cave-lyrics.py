@@ -1,16 +1,15 @@
 import requests
-from bs4 import BeautifulSoup
 from models.album import Album
+from dom_loader import DomLoader
 
 class NickCaveLyricsScraper():
     def __init__(self):
         url = 'https://www.nickcave.com/lyrics'
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        self.albums_dom = soup.find_all('div', {'class': 'lyric-release-wrap-big'})
+        dom_loader = DomLoader(requests.get(url))
+        self.dom = dom_loader.dom()
 
     def create_albums_and_songs(self):
-        for album_dom_element in self.albums_dom:
+        for album_dom_element in self.dom:
             Album.create_from_dom(album_dom_element)
 
 if __name__ == '__main__':
