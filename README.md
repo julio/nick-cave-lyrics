@@ -1,12 +1,14 @@
 ## Models
 
 * album
+    - id
     - title
     - year
     - cover
-    - 1-n songs
 
 * song
+    - id
     - title
     - year
     - lyrics
+    - album_id

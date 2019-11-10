@@ -4,16 +4,21 @@ from bs4 import BeautifulSoup
 from models.song import Song
 
 class Album:
-    def __init__(self, title, album_songs):
+    def __init__(self, title):
         self.title = title
-        self.songs = album_songs
 
-    def record_song_lyrics(self):
-        print('==================', self.title, '==================')
+    @staticmethod
+    def create_from_dom(dom):
+        album_title = dom.find_all('h3')[0].contents[0]
+        album = Album(album_title)
+        album.save()
 
-        for song_data in self.songs:
-            song_title = song_data.contents[0]
-            link_to_song_lyrics = song_data['href']
+        album.add_songs_from_dom(dom.find_all('a'))
+
+    def add_songs_from_dom(self, songs_dom):
+        for song_dom_element in songs_dom:
+            song_title = song_dom_element.contents[0]
+            link_to_song_lyrics = song_dom_element['href']
             response_from_song_lyrics_page = requests.get(link_to_song_lyrics)
             song_lyrics_page = BeautifulSoup(response_from_song_lyrics_page.text, 'html.parser')
             title = song_lyrics_page.find_all('h1')[0].contents[0]
@@ -21,3 +26,6 @@ class Album:
             lyrics = song_lyrics_page.find_all('div', {'class': 'lyrics'})[0].find_all('p')
             song = Song(self, title, year, lyrics)
             song.record_lyrics()
+
+    def save(self):
+        print('Album:', self.title)

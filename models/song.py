@@ -6,6 +6,7 @@ class Song:
         self.lyrics = lyrics
 
     def record_lyrics(self):
-        print('---', self.title, '-', self.year, '---')
+        print('-', self.title, ',', self.year)
         for paragraph in self.lyrics:
-            print(paragraph.contents)
+            pass
+            # print(paragraph.contents)

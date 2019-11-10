@@ -5,26 +5,14 @@ from models.album import Album
 class NickCaveLyricsScraper():
     def __init__(self):
         url = 'https://www.nickcave.com/lyrics'
-        self.fetch_albums(url)
-
-    def fetch_albums(self, url):
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
-        albums = soup.find_all('div', {'class': 'lyric-release-wrap-big'})
-        self.record_albums(albums)
+        self.albums_dom = soup.find_all('div', {'class': 'lyric-release-wrap-big'})
 
-    def record_albums(self, albums):
-        for album in albums:
-            self.record_album(album)
-
-    def record_album(self, album_page):
-        album_data = album_page.find_all('h3')
-        title = album_data[0].contents[0]
-
-        album_songs = album_page.find_all('a')
-
-        album = Album(title, album_songs)
-        album.record_song_lyrics()
+    def create_albums_and_songs(self):
+        for album_dom_element in self.albums_dom:
+            Album.create_from_dom(album_dom_element)
 
 if __name__ == '__main__':
     parser = NickCaveLyricsScraper()
+    parser.create_albums_and_songs()
