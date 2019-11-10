@@ -10,11 +10,15 @@ class Album:
     @staticmethod
     def create_from_dom(dom):
         for dom_element in dom:
-            album_title = dom_element.find_all('h3')[0].contents[0]
+            album_title = Album.dom_element_album_title(dom_element)
             album = Album(album_title)
             album.save()
 
             album.add_songs_from_dom(dom_element.find_all('a'))
+
+    @staticmethod
+    def dom_element_album_title(dom_element):
+        return dom_element.find_all('h3')[0].contents[0]
 
     def add_songs_from_dom(self, songs_dom):
         for song_dom_element in songs_dom:
