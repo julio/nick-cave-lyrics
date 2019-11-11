@@ -8,5 +8,4 @@ class Song:
     def record_lyrics(self):
         print('-', self.title, ',', self.year)
         for paragraph in self.lyrics:
-            pass
-            # print(paragraph.contents)
+            print(paragraph.contents)
