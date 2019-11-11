@@ -21,12 +21,30 @@ class DomLoader():
             replace('\u00e0', 'a').\
             strip()
 
+    def normalize_cover_filename(self, album_name):
+        return 'output/img/' + album_name.replace('/','-').replace(' ','-').replace('!','-') + '.jpg'
+
+    def capture_cover(self, url, album_name):
+        cover_path = self.normalize_cover_filename(album_name)
+        with open(cover_path, 'wb') as handle:
+            res = requests.get(url, stream=True)
+            if not res.ok:
+                print(res)
+            for block in res.iter_content(1024):
+                if not block:
+                    break
+                handle.write(block)
+        return cover_path
+
     def to_hash(self):
         albums = {}
 
         for dom_element in self.albums_dom:
             album_title = self.fix_string(dom_element.find_all('h3')[0].contents[0])
+            url = dom_element.find('img')['data-src']
+            cover_path = self.capture_cover(url, album_title)
             albums[album_title] = {}
+            albums[album_title]['cover'] = cover_path
             albums[album_title]['songs'] = {}
             songs_dom = dom_element.find_all('a')
             for song_dom_element in songs_dom:
