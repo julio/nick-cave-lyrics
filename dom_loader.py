@@ -78,7 +78,7 @@ class DomLoader():
             album['cover'] = cover_path
             album['songs'] = self.capture_songs(album, dom_element.find_all('a'))
             albums.append(album)
-            print(album)
+            print(album_title)
             album_id = str(int(album_id) + 1)
 
         return albums
