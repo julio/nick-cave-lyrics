@@ -22,7 +22,7 @@ class DomLoader():
             strip()
 
     def normalize_cover_filename(self, album_name):
-        return 'output/img/' + album_name.replace('/','-').replace(' ','-').replace('!','-') + '.jpg'
+        return 'site/data/albums/img/' + album_name.replace('/','-').replace(' ','-').replace('!','-') + '.jpg'
 
     def capture_cover(self, url, album_name):
         cover_path = self.normalize_cover_filename(album_name)
@@ -36,33 +36,51 @@ class DomLoader():
                 handle.write(block)
         return cover_path
 
-    def to_hash(self):
-        albums = {}
+    def capture_songs(self, album, songs_dom):
+        songs = []
+        song_id = '1'
+
+        for song_dom_element in songs_dom:
+            song = {}
+
+            song_title = self.fix_string(song_dom_element.contents[0])
+            link_to_song_lyrics = song_dom_element['href']
+            response_from_song_lyrics_page = requests.get(link_to_song_lyrics)
+            song_lyrics_page = BeautifulSoup(response_from_song_lyrics_page.text, 'html.parser')
+            year = song_lyrics_page.find_all('div', {'class': 'date'})[0].contents[0]
+            album['year'] = year # DRY this (done on each song)
+            song['id'] = song_id
+            song['title'] = song_title
+            song['lyrics'] = []
+
+            lyrics = song_lyrics_page.find_all('div', {'class': 'lyrics'})[0].find_all('p')
+            for paragraph in lyrics:
+                p = self.fix_string(str(paragraph.get_text(' [...]')))
+                song['lyrics'].append(p)
+
+            songs.append(song)
+            song_id = str(int(song_id) + 1)
+
+        return songs
+
+    def capture_albums(self):
+        albums = []
+        album_id = '1'
 
         for dom_element in self.albums_dom:
             album_title = self.fix_string(dom_element.find_all('h3')[0].contents[0])
             url = dom_element.find('img')['data-src']
             cover_path = self.capture_cover(url, album_title)
-            albums[album_title] = {}
-            albums[album_title]['cover'] = cover_path
-            albums[album_title]['songs'] = {}
-            songs_dom = dom_element.find_all('a')
-            for song_dom_element in songs_dom:
-                song_title = self.fix_string(song_dom_element.contents[0])
-                albums[album_title]['songs'][song_title] = ''
-                link_to_song_lyrics = song_dom_element['href']
-                response_from_song_lyrics_page = requests.get(link_to_song_lyrics)
-                song_lyrics_page = BeautifulSoup(response_from_song_lyrics_page.text, 'html.parser')
-                year = song_lyrics_page.find_all('div', {'class': 'date'})[0].contents[0]
-                albums[album_title]['year'] = year
-                albums[album_title]['songs'][song_title] = {}
-                albums[album_title]['songs'][song_title]['year'] = year
-                albums[album_title]['songs'][song_title]['lyrics'] = []
 
-                lyrics = song_lyrics_page.find_all('div', {'class': 'lyrics'})[0].find_all('p')
-                for paragraph in lyrics:
-                    p = self.fix_string(str(paragraph.get_text(' [...]')))
-                    albums[album_title]['songs'][song_title]['lyrics'].append(p)
+            album = {}
+            album['id']    = album_id
+            album['title'] = album_title
+            album['cover'] = cover_path
+            album['songs'] = self.capture_songs(album, dom_element.find_all('a'))
+            albums.append(album)
+            print(album)
+            album_id = str(int(album_id) + 1)
+
         return albums
 
     def dom(self):
