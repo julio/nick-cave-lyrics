@@ -34,7 +34,7 @@ class DomLoader():
                 if not block:
                     break
                 handle.write(block)
-        return cover_path
+        return cover_path[len('site/'):] # strip 'site/' prefix
 
     def capture_songs(self, album, songs_dom):
         songs = []

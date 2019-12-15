@@ -12,11 +12,23 @@ class NickCaveLyricsScraper():
     def create_albums_and_songs(self):
         Album.create_from_dom(self.dom)
 
-    def to_hash(self):
+    def albums(self):
         return self.dom_loader.capture_albums()
 
 if __name__ == '__main__':
     scraper = NickCaveLyricsScraper()
-    albums_dict = scraper.to_hash()
-    with open('site/data/albums/nick-cave-lyrics.json', 'w') as json_file:
-        json.dump(albums_dict, json_file)
+    albums = scraper.albums()
+    albums_index = []
+    for album in albums:
+        album_id = album['id']
+        album_link = {}
+        album_link['title'] = album['title']
+        album_link['id'] = album['id']
+        albums_index.append(album_link)
+
+        with open(f'site/data/albums/{album_id}.json', 'w') as json_file:
+            json.dump(album, json_file)
+
+    for album in albums_index:
+        with open('site/data/albums/albums.json', 'w') as json_file:
+            json.dump(albums_index, json_file)
