@@ -24,7 +24,13 @@ var LyricsApp = window.LyricsApp || {};
                 var panel = $('<div class="panel">');
                 panel.addClass('panel-info');
                 panel.append('<div class="panel-heading">' + song.title + '</div>');
-                var body = $('<div class="panel-body">').text(song.lyrics);
+
+                var body = $('<div class="panel-body">');
+                song.lyrics.forEach(function (verse) {
+                    var p = $('<p>' + verse + '</p>');
+                    body.append(p);
+                });
+
                 panel.append(body);
 
                 var row = $('<div class="row">');
